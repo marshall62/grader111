@@ -2,7 +2,7 @@ import os
 import sys
 import importlib
 import pprint
-from _collections import defaultdict
+from collections import defaultdict
 
 def test_program (program_filename, io_specs, results, loaded_module=None):
     '''
@@ -90,8 +90,6 @@ def cycle_dir (dir, io_specs):
 
 def write_student_info (file, stud_filename, scores):
     scores = sorted(scores)
-    print(stud_filename)
-    pprint.pprint(scores)
     file.write(stud_filename+",")
     sum = 0
     for s in scores:
@@ -147,5 +145,4 @@ if __name__ == "__main__":
     grade_file = "grades.csv"
     dir = None # default to cwd for now
     results = cycle_dir(dir, io_specs)
-    pprint.pprint(results)
     write_results(results, io_specs, grade_file)
