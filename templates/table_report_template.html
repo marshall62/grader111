@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<!--    score_rec is a grader2.StudentScore object
+        rubric is a Rubric object
+-->
+    <title>{{rubric.get_name()}}</title>
+
+
+</head>
+<body>
+    <h1>{{rubric.get_name()}} </h1>
+    <table border="1">
+        <thead>
+        <th>Student</th>
+        <th>Module</th>
+        <th>Report</th>
+        <th>Total Score</th>
+        </thead>
+     <tbody >
+     {% for k,v in data.items() %}
+     <tr>
+         <td>{{k}}</td>
+         <td><a href="../{{v[1].student_filename}}">{{v[1].student_filename}}</a></td>
+         <td><a href="{{v[0]}}">Report</a></td>
+         <td>{{v[1].total_score}}</td>
+     </tr>
+     {% endfor %}
+     </tbody>
+    </table>
+</body>
+</html>

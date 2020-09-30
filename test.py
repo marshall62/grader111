@@ -1,5 +1,5 @@
 import unittest
-from grader import *
+from grader_old import *
 from collections import defaultdict
 
 class MyTest(unittest.TestCase):

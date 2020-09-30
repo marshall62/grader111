@@ -1,50 +1,3 @@
-Autograder 
-
-**Setup Instructions:**
-
-1. git clone this repo to an empty dir (e.g. hw-1)
-
-1. Put all the student programs in this directory.
-
-1. Create a JSON rubric and put it in the directory with student programs
-
-1. Run the grader2 program
-
-**Run the program:**
-
-python3 grader2.py -d \<directory> -o \<outputfile> -p \<python-command> -r \<rubricfile>
-
-OPTIONS are switches with arguments as:
-- -d --dir: path to directory containing student programs and rubric JSON file.
-- -o --outfile: The name of the .csv file you want it to produce (will be put in /reports subdir relative to student files)
-- -p --python: The name of your python3.X interpreter (usually python3 or python)
-- -r --rubricfile: The filename that contains JSON which defines a grading rubric (see example below)
-
-```
-python3 grader2.py -d /path/to/assignment1 -o grades.csv -p python3 -r rubric.json
-```
-Student python programs should all be in /path/to/assignment1.
-
-All the report files will be placed in /path/to/assignment1/reports
-You will find grades.csv, grades.html, and Participant_*.html 
-
-**Configuration**
-
-You need to create a JSON object and place it in a file like rubric.json
-that is within the directory where student programs live.
-
-is an example file that goes with the assignment for Clunky Calculator:
-
-This demonstrates only the ability to test a program for its I/O.
-You see that each criteria has a set of tests and a test has inputs
-coming from a string.  Alternatively you can use input_file: within the
-io_test_spec to create a file of inputs.  Providing descriptions is
-necessary for generating good report files.  The output_regex is used to
-compare the student program output so you need to skip over all the junk
-in their output that isn't what you care about.  So for the calculator, all
-we care about is whether they produce the correct number.
-
-```
 {
     "name": "Clunky Calculator",
     "interpreter": "python3",
@@ -142,4 +95,3 @@ we care about is whether they produce the correct number.
         }
     ]
 }
-```

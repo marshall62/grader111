@@ -1,29 +1,37 @@
 import os
 import sys
 import importlib
+import traceback
 import pprint
 from collections import defaultdict
 
-def test_program (program_filename, io_specs, results, loaded_module=None):
+def test_program (program_filename, io_specs, results, loaded_module=None, dir=''):
     '''
     :param program_file:
     :param io_spec: list of dictionaries that specify inputs and outputs
     :param results dictionary of grades
+    :param loaded_module is the module if it was already imported
+    :param dir is where the files live. may be ''
     :return:
     Update the results dictionary (keyed by program_file) with either 0 or 1 if the students output matches the expected
     '''
-    prog = program_filename[:-3]
+    if dir:
+        prog = dir + "." + program_filename[:-3]
+    else:
+        prog = program_filename[:-3]
     student_module_loaded = loaded_module
     # N.B. python only loads a module once.  So we have to hold onto it so that we can then force
     # it to be reloaded each time we want to run the students program.
+    temp_student_outfile = os.path.join(dir,'student_output.txt')
     for io_spec in io_specs:
-        test_input_file = io_spec['input_filename']
-        if os.path.isfile('student_output.txt'):
-            os.remove('student_output.txt')
+        test_input_file = os.path.join(dir,io_spec['input_filename'])
+        if os.path.isfile(temp_student_outfile):
+            os.remove(temp_student_outfile)
         try:
-            student_module_loaded = run_program(prog, test_input_file, 'student_output.txt', loaded_module=student_module_loaded)
-            grade_results(program_filename, 'student_output.txt', io_spec, results)
-        except:
+            student_module_loaded = run_program(prog, test_input_file, temp_student_outfile, loaded_module=student_module_loaded)
+            grade_results(program_filename, temp_student_outfile, io_spec, results, dir)
+        except Exception as e:
+            # traceback.print_exc()
             # exceptions will result in a 0 for each test.
             results[program_filename].append((io_spec['label'], 0))
 
@@ -39,6 +47,8 @@ def run_program(py_program, input_file, output_file, loaded_module=None):
         sys.stdin = open(input_file, 'r')
         sys.stdout = open(output_file, 'w')
         sys.stderr = sys.stdout
+        # N.B. if the module is in a subdir (at most one level below cwd) it must have __init__.py for
+        # import_module to work
         if not loaded_module:
             loaded_module = importlib.import_module(py_program)
         else:
@@ -63,7 +73,7 @@ def io_compare (student_filename, expected_out_filename):
     e.close()
     return 1 if etxt == stxt else 0
 
-def grade_results (program_filename, student_output_file, io_spec, results):
+def grade_results (program_filename, student_output_file, io_spec, results, dir):
     '''
     Compare the student output to expected and update the results dict.
     :param program_file:
@@ -72,7 +82,7 @@ def grade_results (program_filename, student_output_file, io_spec, results):
     :param results:
     :return:
     '''
-    exp_out_filename = io_spec["output_filename"]
+    exp_out_filename = os.path.join(dir,io_spec["output_filename"])
     label = io_spec["label"]
     grade = io_compare(student_output_file, exp_out_filename)
     results[program_filename].append((label, grade))
@@ -83,9 +93,10 @@ def cycle_dir (dir, io_specs):
     results = defaultdict(list)
     for entry in os.scandir(dir):
         if entry.path.endswith(".py") and entry.is_file and \
-            entry.name not in ['grader.py', 'test.py', 'solution.py']:
-            print(".",end='')
-            test_program(entry.name , io_specs, results)
+            entry.name not in ['grader_old.py', 'test.py', 'solution.py', '__init__.py']:
+            print(entry.name)
+            test_program(entry.name , io_specs, results, dir=dir)
+    print("Done")
     return results
 
 def write_student_info (file, stud_filename, scores):
@@ -108,11 +119,11 @@ def write_results (results, io_specs, grade_file):
         write_student_info(f, stud_filename, results[stud_filename])
     f.close()
 
-def produce_expected_ouput_files (solution_module, io_specs):
+def produce_expected_ouput_files (solution_module, io_specs, dir):
     mod= None
     for io_spec in io_specs:
-        input = io_spec['input_filename']
-        output = io_spec['output_filename']
+        input = os.path.join(dir,io_spec['input_filename'])
+        output = os.path.join(dir,io_spec['output_filename'])
         mod = run_program(solution_module, input, output, mod)
 
 if __name__ == "__main__":
@@ -131,7 +142,7 @@ if __name__ == "__main__":
                  "output_filename": "mult_outputs.txt",
                  "label": "*"
                  },
-                {"input_filename": "div_inputs.txt",
+                {"input_filename": "div_inputs_1.txt",
                  "output_filename": "div_outputs.txt",
                  "label": "/"
                  },
@@ -140,9 +151,13 @@ if __name__ == "__main__":
                  "label": "**"
                  }
                 ]
-    solution = "solution" # solution.py is the correct solution
-    produce_expected_ouput_files(solution, io_specs)
-    grade_file = "grades.csv"
-    dir = None # default to cwd for now
+    if len(sys.argv) > 1:
+        dir = sys.argv[1]
+        solution = dir + ".solution"  # solution.py is in subdir (which must contain __init__.py)
+    else:
+        dir = ''
+        solution = 'solution'
+    produce_expected_ouput_files(solution, io_specs, dir)
+    grade_file = os.path.join(dir,"grades.csv")
     results = cycle_dir(dir, io_specs)
     write_results(results, io_specs, grade_file)

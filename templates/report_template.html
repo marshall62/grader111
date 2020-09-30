@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<!--    score_rec is a grader2.StudentScore object
+        rubric is a Rubric object
+-->
+    <title>{{rubric.get_name()}} for {{student_name}}</title>
+
+</head>
+<body>
+    <h1>{{rubric.get_name()}} Assignment Report for {{student_name}} </h1>
+    <h2>Student Module: {{score_rec.student_filename}}</h2>
+    <b>Overall Score: {{score_rec.total_score}}</b>
+    <h2>Execution Tests</h2>
+    {% for facet_score in score_rec.facet_score_list %}
+        <h3>Program Criteria: {{rubric.get_facet_name(facet_score.facet)}}</h3>
+        Description: {{rubric.get_facet_description(facet_score.facet)}}<br>
+        Score: {{facet_score.points_scored}} / {{rubric.get_facet_points(facet_score.facet)}}
+        {% if facet_score.points_scored < rubric.get_facet_points(facet_score.facet) %}
+            <br><ul>
+            {% for prog_result in facet_score.test_results %}
+                {% if not prog_result.is_correct %}
+                    <li>Failed test: {{rubric.get_facet_test_description(facet_score.facet.tests[loop.index0])}}
+                        <ul>{% if not prog_result.is_complete %}
+                            <li> Program didn't terminate</li>
+                        {% endif %}
+                            {% if prog_result.error_message and prog_result.is_complete %}
+                                <li>{{prog_result.error_message}}</li>
+                            {% endif %}
+                            {% if prog_result.output %}
+                                <li>Your output: {{prog_result.output}}</li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endfor %}
+
+</body>
+</html>
