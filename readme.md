@@ -143,3 +143,31 @@ we care about is whether they produce the correct number.
     ]
 }
 ```
+
+To do unit testing of a student module that contains functions you need to provide unit tests in your facets like:
+```
+{
+    "type": "unit",
+    "description": "function add(8,4) returns 12",
+    "unit_test_spec": {
+        "test_module": "calc_tests.py",
+        "tester_function": "test_add",
+        "tested_function": "add"
+    }
+}
+```
+
+In the example above, you must write a python file called calc_tests.py and it must contain a function called `test_add`.
+The file must be placed in the same directory as the student python files.  
+It will test the `add` function within the student module.  Here is what the `test_add` function looks like:
+
+```
+file: calc_tests.py
+
+def test_add (add_fn):
+    ''' Will be passed the function object for the add function in the student module '''
+    return 22 == add_fn(10, 12)
+```
+
+So all unit tester_functions are passed the student function object which it can call however it likes as many times as it likes.  It must
+return a True/False which indicates if the student function succeeds for this unit test.
