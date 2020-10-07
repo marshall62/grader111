@@ -59,12 +59,12 @@ class ProgramRunner:
 
 class ProgramResult:
 
-    def __init__ (self, is_complete, returncode, output, error_message):
+    def __init__ (self, is_complete, returncode, output, error_message, is_correct=False):
         self.is_complete = is_complete
         self.output = output
         self.returncode = returncode
         self.error_message = error_message
-        self.is_correct = False
+        self.is_correct = is_correct
 
     def set_is_correct (self, is_correct):
         self.is_correct = is_correct

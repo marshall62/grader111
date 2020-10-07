@@ -108,5 +108,26 @@ class TestFacetTester(unittest.TestCase):
         sc: FacetTestScore = ft.test()
         self.assertEqual(0.5,sc.points_scored)
 
+    def test_unit_facet (self):
+        module = 'stud2.py'
+        f = {'facet_name': '+',
+             'points': 1,
+             'description': 'Correctly adds numbers',
+             'tests': [
+                 {
+                     'type': 'unit',
+                     'description': "Add two positive numbers",
+                     'unit_test_spec': {
+                         "test_module": "unit_tests.py",
+                         "tester_function": "test_add",
+                         "tested_function": "add"
+                     }
+                 }
+             ]
+             }
+        ft = FacetTester(f, module, "python3", 2)
+        sc: FacetTestScore = ft.test()
+        self.assertEqual(1, sc.points_scored)
+
 
         #TODO add unit tests for invalid facet structures with missing keys, referring to non-existent input files, regex problems, unit-test.

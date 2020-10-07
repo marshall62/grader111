@@ -1,6 +1,8 @@
-from ProgramRunner import ProgramRunner, ProgramResult
-import exc
+from pathlib import Path
 import re
+
+from ProgramRunner import ProgramRunner, ProgramResult
+from UnitTester import UnitTester
 
 class FacetTester:
 
@@ -40,8 +42,20 @@ class FacetTester:
         if test['type'] == 'io':
             return self.facet_io_test(test['io_test_spec'])
         else:
-            raise NotImplemented("unit tests not yet testable")
+            return self.facet_unit_test(test['unit_test_spec'])
 
+    def facet_unit_test (self, unit_test_spec):
+        unit_test_module = unit_test_spec['test_module']
+        unit_test_function = unit_test_spec['tester_function']
+        student_function = unit_test_spec['tested_function']
+        path = Path(self.student_module_path)
+        is_correct = UnitTester(dir=path.parent,
+                         module=unit_test_module,
+                         function=unit_test_function,
+                         student_module_path=self.student_module_path,
+                         student_function_name=student_function).test()
+        # The UnitTester is not capturing some stuff like
+        return ProgramResult(is_complete=1,returncode=0,output='',error_message=''), is_correct
 
     def facet_io_test(self, io_test_spec):
         '''
